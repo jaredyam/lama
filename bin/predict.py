@@ -62,6 +62,7 @@ def main(predict_config: OmegaConf):
             predict_config.indir += '/'
 
         dataset = make_default_val_dataset(predict_config.indir, **predict_config.dataset)
+        inpainted_images = []
         with torch.no_grad():
             for img_i in tqdm.trange(len(dataset)):
                 mask_fname = dataset.mask_filenames[img_i]
@@ -79,6 +80,9 @@ def main(predict_config: OmegaConf):
                 cur_res = np.clip(cur_res * 255, 0, 255).astype('uint8')
                 cur_res = cv2.cvtColor(cur_res, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(cur_out_fname, cur_res)
+                inpainted_images.append(cur_out_fname)
+        for img_i in range(len(dataset)):
+            print(f'Successfully saved inpainted image: {inpainted_images[img_i]}')
     except KeyboardInterrupt:
         LOGGER.warning('Interrupted by user')
     except Exception as ex:
